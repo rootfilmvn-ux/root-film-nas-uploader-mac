@@ -1,0 +1,57 @@
+name: Build macOS DMG NAS Uploader V1.0.7
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - name: Lay ma nguon
+        uses: actions/checkout@v4
+
+      - name: Cai dat Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cai thu vien & Tai nhan Chromium macOS
+        run: |
+          python -m pip install --upgrade pip wheel setuptools
+          pip install flask pywebview playwright pillow pyinstaller
+          PLAYWRIGHT_BROWSERS_PATH="$PWD/pw_browsers" python -m playwright install chromium
+          python make_icon.py
+
+      - name: Bien dich ung dung macOS (.app)
+        run: |
+          ICON_ARG=""
+          if [ -f "app_icon.icns" ]; then ICON_ARG="--icon app_icon.icns"; fi
+          pyinstaller --noconfirm --windowed --onedir \
+            --name "ROOT FILM - NAS Fast Uploader V1.0.7" \
+            $ICON_ARG \
+            --add-data "src/templates:templates" \
+            --add-data "pw_browsers:pw_browsers" \
+            --collect-all playwright \
+            --osx-bundle-identifier "com.rootfilm.nasuploader" \
+            src/app.py
+
+      - name: Ky chung chi & Dong goi file .DMG + .ZIP
+        run: |
+          APP_PATH="dist/ROOT FILM - NAS Fast Uploader V1.0.7.app"
+          xattr -cr "$APP_PATH" || true
+          codesign --force --deep --sign - "$APP_PATH" || true
+
+          mkdir -p release_output dmg_stage
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "release_output/ROOT_FILM_NAS_Uploader_V1.0.7_Mac.zip"
+
+          cp -R "$APP_PATH" dmg_stage/
+          ln -s /Applications dmg_stage/Applications
+          hdiutil create -volname "ROOT FILM NAS V1.0.7" -srcfolder dmg_stage -ov -format UDZO "release_output/ROOT_FILM_NAS_Uploader_V1.0.7_Mac.dmg"
+
+      - name: Xuat file cai dat de tai ve
+        uses: actions/upload-artifact@v4
+        with:
+          name: ROOT_FILM_NAS_Uploader_V1.0.7_macOS
+          path: release_output/*
