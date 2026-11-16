@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>ROOT FILM - NAS Fast Uploader V1.0.7</title>
+<style>
+  :root { --bg: #0f1217; --panel: #181c24; --card: #212631; --accent: #38bdf8; --green: #10b981; --gold: #f59e0b; --red: #ef4444; --text: #e2e8f0; --muted: #94a3b8; }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; background: var(--panel); border-bottom: 1px solid #2d3442; padding: 10px 20px; }
+  .brand { font-size: 15.5px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-guide { background: #1e293b; color: #fbbf24; border: 1px solid #d97706; padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-donate { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; border: none; padding: 7px 13px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+  .btn-about, .btn-outline { background: #262b35; color: #fff; border: 1px solid #3f4654; padding: 7px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .main-grid { flex: 1; padding: 16px 20px; display: flex; gap: 18px; overflow: hidden; }
+  .col-left { flex: 1.15; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; }
+  .col-right { flex: 0.85; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+  .card { background: var(--card); border: 1px solid #2f3746; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 9px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #323a4a; padding-bottom: 7px; }
+  .card-title { font-size: 12.5px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+  label { font-size: 12px; color: #cbd5e1; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  input[type="text"], input[type="password"], input[type="number"], select { width: 100%; background: #12151c; border: 1px solid #3b4454; color: #f8fafc; border-radius: 6px; padding: 8px 11px; font-size: 12.5px; user-select: text; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .link-pwd-grid { display: grid; grid-template-columns: 1.45fr 0.55fr; gap: 8px; }
+  .link-row { display: flex; gap: 6px; }
+  .saved-links-wrap { display: flex; gap: 6px; align-items: center; }
+  .folder-picker-box { display: flex; gap: 8px; align-items: center; }
+  .folder-path-display { flex: 1; background: #12151c; border: 1px solid #2d3544; color: #34d399; padding: 8px 11px; border-radius: 6px; font-family: Menlo, Consolas, monospace; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: text; }
+  .btn-pick-file { background: #38bdf8; color: #000; font-weight: bold; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+  .btn-pick-folder { background: var(--gold); color: #000; font-weight: bold; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+  .two-cols-input { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 10px; }
+  .preview-tag-box { background: #131c27; border: 1px dashed #38bdf8; border-radius: 8px; padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 5px; }
+  .preview-tag-val { color: #fbbf24; font-family: Menlo, Consolas, monospace; font-weight: bold; font-size: 13.5px; user-select: text; }
+  .btn-upload { background: linear-gradient(135deg, #10b981, #059669); color: #000; font-weight: 800; border: none; padding: 13px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: auto; }
+  .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat-box { background: #141820; border: 1px solid #2d3544; border-radius: 8px; padding: 12px 8px; text-align: center; }
+  .stat-val { font-size: 19px; font-weight: 800; color: var(--accent); font-family: Menlo, Consolas, monospace; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .log-box { flex: 1; background: #0c0e12; border: 1px solid #28303d; border-radius: 8px; padding: 10px; font-family: Menlo, Consolas, monospace; font-size: 11.5px; color: #94a3b8; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; user-select: text; }
+  .log-line { line-height: 1.4; word-break: break-all; }
+  .footer-bar { background: var(--panel); border-top: 1px solid #2d3442; padding: 10px 22px; display: flex; align-items: center; gap: 16px; }
+  .progress-wrap { flex: 1; }
+  .status-msg { font-size: 12.5px; color: #34d399; margin-bottom: 5px; font-weight: 600; }
+  .progress-track { height: 9px; background: #262c38; border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.3s; }
+  .btn-cancel-task { display: none; background: #dc2626; color: #ffffff; border: 1px solid #f87171; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.82); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+  .modal-card { background: #1b1e26; border: 1px solid #3f4654; border-radius: 14px; width: 390px; padding: 20px; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; }
+  .about-card { width: 580px; text-align: left; }
+  .modal-close { position: absolute; top: 12px; right: 12px; background: #2d3340; color: #cbd5e1; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold; }
+  .modal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .about-section { background: #14171c; border: 1px solid #2f3542; border-radius: 8px; padding: 10px 14px; margin-bottom: 9px; font-size: 12px; line-height: 1.55; color: #cbd5e1; }
+  .about-section-title { font-weight: bold; color: #38bdf8; margin-bottom: 4px; font-size: 12.5px; }
+  .guide-highlight { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.45); }
+  .guide-highlight .about-section-title { color: #34d399; }
+  .code-pill { background: #0b0d11; border: 1px solid #334155; color: #fbbf24; padding: 1px 6px; border-radius: 4px; font-family: Menlo, Consolas, monospace; font-size: 11.5px; }
+  .qr-cropped-box { background: #ffffff; border-radius: 12px; padding: 14px 16px 12px; width: 245px; margin: 0 auto 14px; }
+  .vp-logo { display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 800; font-size: 16px; color: #008446; margin-bottom: 8px; }
+  .vp-leaf { width: 14px; height: 14px; background: linear-gradient(135deg, #ed1c24, #008446); border-radius: 2px 10px 2px 10px; display: inline-block; }
+  .qr-cropped-box img { width: 185px; height: 185px; display: block; margin: 0 auto; }
+  .qr-badges { display: flex; justify-content: center; gap: 10px; margin-top: 8px; font-size: 10px; font-weight: 800; }
+  .bank-info-box { background: #14171c; border: 1px solid #2f3542; border-radius: 8px; padding: 10px 14px; text-align: left; font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
+  .info-line { display: flex; justify-content: space-between; align-items: center; }
+  .btn-copy { background: #2b313e; color: var(--gold); border: 1px solid #3f4654; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">☁️ ROOT FILM - NAS FAST UPLOADER V1.0.7</div>
+    <div class="top-actions">
+      <button class="btn-guide" onclick="document.getElementById('guideModal').style.display='flex'">📖 Hướng dẫn sử dụng</button>
+      <button class="btn-about" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ Giới thiệu</button>
+      <button class="btn-donate" onclick="document.getElementById('donateModal').style.display='flex'">☕ Ủng hộ tác giả</button>
+    </div>
+  </div>
+  <div class="main-grid">
+    <div class="col-left">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔗 Bước 1: Dán Link Request NAS (Tự Động Ghi Nhớ)</span>
+          <button class="btn-outline" style="padding:3px 9px; font-size:11px;" onclick="document.getElementById('requestLink').value=''; document.getElementById('linkPassword').value='';">Xóa trắng</button>
+        </div>
+        <div class="link-pwd-grid">
+          <div>
+            <label>Đường dẫn File Request được gửi cho bạn *:</label>
+            <div class="link-row" style="margin-top:4px;">
+              <input type="text" id="requestLink" value="{{ config.last_link }}" placeholder="Dán link Request NAS (https://...) vào đây...">
+              <button class="btn-outline" onclick="saveCurrentLink()">💾 Lưu</button>
+            </div>
+          </div>
+          <div>
+            <label>🔐 Mật khẩu Link (nếu có):</label>
+            <div style="margin-top:4px;">
+              <input type="password" id="linkPassword" autocomplete="new-password" placeholder="Bỏ trống nếu không có...">
+            </div>
+          </div>
+        </div>
+        <label>Lịch sử Link Request đã lưu:</label>
+        <div class="saved-links-wrap">
+          <select id="savedLinksSelect" onchange="if(this.value) { document.getElementById('requestLink').value=this.value; }">
+            <option value="">-- Chọn từ danh sách Link đã dùng gần đây --</option>
+            {% for lnk in config.saved_links %}
+            <option value="{{ lnk }}" {% if lnk == config.last_link %}selected{% endif %}>{{ lnk }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn-outline" style="color:#fca5a5; border-color:#7f1d1d;" onclick="deleteSelectedLink()">🗑️ Xóa</button>
+        </div>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="card-header">
+          <span class="card-title">📁 Bước 2: Chọn File / Folder & Điền Tên Dự Án</span>
+        </div>
+        <label>Chọn dữ liệu từ máy tính để tải lên NAS:</label>
+        <div class="folder-picker-box">
+          <div class="folder-path-display" id="folderDisplay">Chưa chọn tệp hoặc thư mục nào...</div>
+          <button class="btn-pick-file" onclick="pickFiles()">📄 Chọn File</button>
+          <button class="btn-pick-folder" onclick="pickFolder()">📂 Chọn Folder</button>
+        </div>
+        <div id="folderScanHint" style="font-size:11.5px; color:#38bdf8;">Hãy chọn File lẻ hoặc cả Folder để hệ thống tự động đếm số lượng file.</div>
+        <div class="two-cols-input">
+          <div>
+            <label>🎬 Tên dự án / Tên người gửi *:</label>
+            <input type="text" id="projectName" value="" autocomplete="off" placeholder="Nhập tên dự án cho lần gửi này..." oninput="updatePreview()">
+          </div>
+          <div>
+            <label>🔢 Số lượng file tải lên *:</label>
+            <input type="number" id="declaredCount" min="1" value="1" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="preview-tag-box">
+          <div style="color:var(--muted);">📌 Định danh tự động điền vào mục <b>"Your name"</b> trên NAS (giúp Admin kiểm đếm đủ file):</div>
+          <div class="preview-tag-val" id="previewUploaderTag">[Tên dự án] (1 files)</div>
+        </div>
+        <button class="btn-upload" id="btnStartUp" onclick="startUpload()">🚀 BẮT ĐẦU TẢI DỮ LIỆU LÊN NAS</button>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="card" style="flex:1; overflow:hidden;">
+        <div class="card-header"><span class="card-title">📊 Tiến Trình Upload & Kiểm Đếm File</span></div>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-val" id="speedVal">0.0 MB/s</div><div class="stat-label">Tốc độ Upload</div></div>
+          <div class="stat-box"><div class="stat-val" id="countVal" style="color:#f59e0b;">0 / 0</div><div class="stat-label">File hoàn thành / Tổng</div></div>
+          <div class="stat-box"><div class="stat-val" id="mbVal" style="color:#10b981;">0 / 0 MB</div><div class="stat-label">Dung lượng đã tải lên</div></div>
+        </div>
+        <div class="log-box" id="logBox">
+          <div class="log-line">💡 Hướng dẫn: Dán Link Request NAS (nhập mật khẩu nếu link có khóa) → Chọn File hoặc Folder → Điền Tên dự án + Số lượng file → Bấm Bắt đầu tải lên.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <div class="progress-wrap">
+      <div class="status-msg" id="statusMsg">Sẵn sàng tải dữ liệu lên NAS...</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <button class="btn-cancel-task" id="btnCancelTask" onclick="cancelUpload()">🛑 HỦY UPLOAD</button>
+  </div>
+
+  <div class="modal-overlay" id="guideModal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-card about-card">
+      <button class="modal-close" onclick="document.getElementById('guideModal').style.display='none'">✖</button>
+      <div class="modal-title">📖 HƯỚNG DẪN SỬ DỤNG NHANH (V1.0.7)</div>
+      <div class="modal-sub">Quy trình 3 bước gửi dữ liệu ngầm siêu tốc, tự động kiểm đếm file lên NAS</div>
+      <div class="about-section">
+        <div class="about-section-title">Bước 1: Dán Link Request NAS & Mật khẩu (nếu có)</div>
+        <div>• Dán đường link nhận dữ liệu vào ô <b>Đường dẫn File Request</b>. Nếu link có mật khẩu bảo vệ, điền mật khẩu vào ô <span class="code-pill">🔐 Mật khẩu Link</span> để ứng dụng tự động mở khóa.</div>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">Bước 2: Chọn File lẻ hoặc cả Thư mục (Folder)</div>
+        <div>• Bấm <span class="code-pill">📄 Chọn File</span> hoặc <span class="code-pill">📂 Chọn Folder</span> để chọn dữ liệu từ máy Mac. Hệ thống tự động đếm chính xác tổng số file.</div>
+      </div>
+      <div class="about-section guide-highlight" style="margin-bottom:0;">
+        <div class="about-section-title">Bước 3: Điền Tên dự án & Bắt đầu tải ngầm lên NAS</div>
+        <div>• Nhập <b>Tên dự án</b> rồi bấm <span class="code-pill">🚀 BẮT ĐẦU TẢI DỮ LIỆU LÊN NAS</span>. Ứng dụng sẽ tự động gắn nhãn <span class="code-pill">Tên dự án (Số file files)</span> và truyền tải ngầm trực tiếp lên NAS.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="aboutModal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-card about-card">
+      <button class="modal-close" onclick="document.getElementById('aboutModal').style.display='none'">✖</button>
+      <div class="modal-title">ℹ️ GIỚI THIỆU & THÔNG TIN BẢN QUYỀN</div>
+      <div class="modal-sub">ROOT FILM - NAS Fast Uploader V1.0.7</div>
+      <div class="about-section"><div class="about-section-title">👨‍💻 Tác giả & Mục đích phát triển</div><div>Phát triển bởi <b>Phạm Dương (ROOT FILM VIETNAM)</b> nhằm chuẩn hóa quy trình nhận source quay dựng trực tiếp lên máy chủ NAS Synology.</div></div>
+      <div class="about-section" style="margin-bottom:0;"><div class="about-section-title">🔒 Bảo mật</div><div>Truyền tải trực tiếp từ máy tính người gửi tới địa chỉ NAS của Link Request, không qua máy chủ trung gian.</div></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="donateModal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-card">
+      <button class="modal-close" onclick="document.getElementById('donateModal').style.display='none'">✖</button>
+      <div class="modal-title">☕ ỦNG HỘ TÁC GIẢ PHÁT TRIỂN APP</div>
+      <div class="modal-sub">Cảm ơn bạn đã ủng hộ Phạm Dương (ROOT FILM VIETNAM)!</div>
+      <div class="qr-cropped-box">
+        <div class="vp-logo"><span class="vp-leaf"></span> VPBank</div>
+        <img src="https://img.vietqr.io/image/VPB-270208193-qr_only.png" alt="QR VPBank">
+        <div class="qr-badges"><span style="color:#d9232e;">VIETQR</span><span style="color:#005baa;">napas 247</span></div>
+      </div>
+      <div class="bank-info-box">
+        <div class="info-line"><span style="color:var(--muted);">Ngân hàng:</span><span style="color:#34d399; font-weight:bold;">VPBank</span></div>
+        <div class="info-line"><span style="color:var(--muted);">Số tài khoản:</span><span><b style="color:#fff;">270208193</b> <button class="btn-copy" id="btnCopyStk" onclick="navigator.clipboard.writeText('270208193');this.innerText='Đã chép!'">Copy</button></span></div>
+        <div class="info-line"><span style="color:var(--muted);">Chủ tài khoản:</span><b style="color:#fff;">PHAM VAN DUONG</b></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let selectedSourceType = "folder";
+  let selectedSourcePaths = [];
+  let detectedFileCount = 0;
+
+  function renderSavedLinksDropdown(links, activeLink) {
+    const sel = document.getElementById('savedLinksSelect');
+    let html = '<option value="">-- Chọn từ danh sách Link đã dùng gần đây --</option>';
+    for (let l of links) {
+      const isSel = (l === activeLink) ? 'selected' : '';
+      html += `<option value="${l}" ${isSel}>${l}</option>`;
+    }
+    sel.innerHTML = html;
+  }
+
+  function saveCurrentLink() {
+    const lnk = document.getElementById('requestLink').value.trim();
+    if (!lnk) return alert("Vui lòng dán link trước khi lưu!");
+    fetch('/api/save_link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link: lnk }) })
+      .then(r => r.json()).then(data => { renderSavedLinksDropdown(data.saved_links, lnk); document.getElementById('statusMsg').innerText = "💾 Đã lưu Link Request vào bộ nhớ!"; });
+  }
+
+  function deleteSelectedLink() {
+    const sel = document.getElementById('savedLinksSelect');
+    const target = sel.value || document.getElementById('requestLink').value.trim();
+    if (!target) return;
+    fetch('/api/delete_saved_link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link: target }) })
+      .then(r => r.json()).then(data => { document.getElementById('requestLink').value = data.last_link || ''; renderSavedLinksDropdown(data.saved_links, data.last_link); });
+  }
+
+  function pickFolder() {
+    fetch('/api/select_folder', { method: 'POST' }).then(r => r.json()).then(data => {
+      if (data.status === 'ok') {
+        selectedSourceType = "folder"; selectedSourcePaths = data.paths; detectedFileCount = data.file_count;
+        document.getElementById('folderDisplay').innerText = "📂 " + data.display_text;
+        document.getElementById('declaredCount').value = data.file_count > 0 ? data.file_count : 1;
+        document.getElementById('folderScanHint').innerText = `✔ Đã quét thư mục: Phát hiện ${data.file_count} tệp tin (Tổng dung lượng: ${data.total_mb} MB).`;
+        updatePreview();
+      }
+    });
+  }
+
+  function pickFiles() {
+    fetch('/api/select_files', { method: 'POST' }).then(r => r.json()).then(data => {
+      if (data.status === 'ok') {
+        selectedSourceType = "file"; selectedSourcePaths = data.paths; detectedFileCount = data.file_count;
+        document.getElementById('folderDisplay').innerText = "📄 " + data.display_text;
+        document.getElementById('declaredCount').value = data.file_count > 0 ? data.file_count : 1;
+        document.getElementById('folderScanHint').innerText = `✔ Đã chọn ${data.file_count} tệp tin lẻ (Tổng dung lượng: ${data.total_mb} MB).`;
+        updatePreview();
+      }
+    });
+  }
+
+  function updatePreview() {
+    const name = document.getElementById('projectName').value.trim() || "Tên dự án";
+    const count = parseInt(document.getElementById('declaredCount').value) || 1;
+    document.getElementById('previewUploaderTag').innerText = `${name} (${count} files)`;
+  }
+
+  function cancelUpload() {
+    const btn = document.getElementById('btnCancelTask'); btn.disabled = true; btn.innerText = "⏳ Đang hủy...";
+    fetch('/api/cancel_upload', { method: 'POST' });
+  }
+
+  function startUpload() {
+    const reqLink = document.getElementById('requestLink').value.trim();
+    const linkPassword = document.getElementById('linkPassword').value.trim();
+    const projectName = document.getElementById('projectName').value.trim();
+    const declaredCount = parseInt(document.getElementById('declaredCount').value) || 0;
+
+    if (!reqLink) return alert("Vui lòng dán Link Request NAS!");
+    if (!projectName) return alert("Vui lòng điền Tên dự án / Tên người gửi!");
+    if (!selectedSourcePaths || selectedSourcePaths.length === 0) return alert("Vui lòng bấm 'Chọn File' hoặc 'Chọn Folder' cần tải lên!");
+
+    if (detectedFileCount > 0 && declaredCount !== detectedFileCount) {
+      if (!confirm(`Số lượng file bạn nhập (${declaredCount}) khác với số file thực tế đã chọn (${detectedFileCount} file).\n\nBạn vẫn muốn tiếp tục tải lên chứ?`)) return;
+    }
+
+    document.getElementById('btnStartUp').disabled = true;
+    const btnCancel = document.getElementById('btnCancelTask'); btnCancel.style.display = 'inline-block'; btnCancel.disabled = false; btnCancel.innerText = "🛑 HỦY UPLOAD";
+
+    fetch('/api/start_upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestLink: reqLink, linkPassword: linkPassword, projectName: projectName, declaredCount: declaredCount, sourceType: selectedSourceType, sourcePaths: selectedSourcePaths })
+    }).then(r => r.json()).then(res => {
+      if (res.error) { alert(res.error); document.getElementById('btnStartUp').disabled = false; btnCancel.style.display = 'none'; return; }
+      if (res.saved_links) renderSavedLinksDropdown(res.saved_links, reqLink);
+      pollStatus();
+    });
+  }
+
+  function pollStatus() {
+    const timer = setInterval(() => {
+      fetch('/api/status').then(r => r.json()).then(st => {
+        const msgEl = document.getElementById('statusMsg'); msgEl.innerText = st.message;
+        msgEl.style.color = (st.message.includes('❌') || st.message.includes('🛑') || st.message.includes('⚠')) ? '#f87171' : '#34d399';
+        document.getElementById('progressFill').style.width = st.progress + '%';
+        document.getElementById('speedVal').innerText = st.speed_mbps.toFixed(1) + ' MB/s';
+        document.getElementById('countVal').innerText = `${st.done_files} / ${st.total_files}`;
+        document.getElementById('mbVal').innerText = `${st.uploaded_mb.toFixed(1)} / ${st.total_mb.toFixed(1)} MB`;
+        const logBox = document.getElementById('logBox');
+        if (st.logs && st.logs.length > 0) { logBox.innerHTML = st.logs.map(l => `<div class="log-line">${l}</div>`).join(''); logBox.scrollTop = logBox.scrollHeight; }
+        if (!st.is_running) { clearInterval(timer); document.getElementById('btnStartUp').disabled = false; document.getElementById('btnCancelTask').style.display = 'none'; document.getElementById('speedVal').innerText = '0.0 MB/s'; }
+      });
+    }, 500);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => { document.getElementById('projectName').value = ''; updatePreview(); });
+</script>
+</body>
+</html>
